@@ -33,8 +33,8 @@ This project sets up a complete monitoring system using Prometheus, Grafana, and
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/thangdvt/devops-test.git
+cd devops-test
 ```
 
 2. Start the services:
@@ -145,7 +145,7 @@ receivers:
 3. Select either:
    - Node Exporter Dashboard (ID: 11074)
    - Blackbox Exporter Dashboard (ID: 13659)
-and the result like this.
+4. when any issue or alert will send to chanel in slack though webhook and group chat in telegram though API.
 ![image](https://github.com/user-attachments/assets/bff0c67b-6b87-43f9-bcfc-d76625b45847)
 ![image](https://github.com/user-attachments/assets/8f679cbf-ec55-4537-9890-d43d8c1da112)
 ### Managing Alerts
