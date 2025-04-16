@@ -1,211 +1,193 @@
-# Monitoring System Setup
+# Monitoring System with Prometheus, Grafana, and Alertmanager
 
-This repository contains a complete monitoring system setup using Docker Compose, including Prometheus, Grafana, Alertmanager, Node Exporter, Blackbox Exporter, and a test Nginx service.
+This project sets up a complete monitoring system using Prometheus, Grafana, and Alertmanager with integrations for Slack and Telegram notifications.
 
-## Components
+## Table of Contents
+- [System Components](#system-components)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Prometheus Configuration](#prometheus-configuration)
+  - [Grafana Configuration](#grafana-configuration)
+  - [Alertmanager Configuration](#alertmanager-configuration)
+- [Slack Integration](#slack-integration)
+- [Telegram Integration](#telegram-integration)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
 
-### Core Monitoring Components
-- **Prometheus**: Metrics collection and storage
-- **Grafana**: Visualization and dashboards
-- **Alertmanager**: Alert handling and notifications
-- **Node Exporter**: System metrics collection
-- **Blackbox Exporter**: HTTP endpoint monitoring
-- **Nginx**: Test service for monitoring
+## System Components
 
-### Alert Integration
-- **Slack Integration**: Real-time alerts in Slack channels
-- **Telegram Integration**: Real-time alerts in Telegram groups
+- **Prometheus**: Time-series database and monitoring system
+- **Grafana**: Visualization and dashboard platform
+- **Alertmanager**: Handles alerts from Prometheus and routes them to different receivers
+- **Node Exporter**: Collects system metrics
+- **Blackbox Exporter**: Probes endpoints over HTTP, HTTPS, DNS, TCP, and ICMP
 
 ## Prerequisites
 
-- Docker
-- Docker Compose
-- Slack workspace and webhook URL
-- Telegram bot token and chat ID
+- Docker and Docker Compose installed
+- Access to Slack workspace (for Slack integration)
+- Telegram bot token (for Telegram integration)
 
-## System Architecture
+## Installation
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Prometheus │◄────┤ Node Exporter     │
-└──────┬──────┘     └─────────────┘     └─────────────┘
-       │
-       ▼
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│ Alertmanager│◄────┤ Blackbox    │◄────┤   Nginx     │
-└──────┬──────┘     │ Exporter    │     │  Service    │
-       │            └─────────────┘     └─────────────┘
-       │
-       ▼
-┌─────────────┐     ┌─────────────┐
-│   Slack     │     │  Telegram   │
-└─────────────┘     └─────────────┘
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd <repository-directory>
 ```
 
-## Setup Instructions
-
-1. Clone this repository
-2. Configure alert integrations:
-   - Update Slack webhook URL in `alertmanager/config.yml`
-   - Telegram bot token and chat ID are already configured
-3. Start all services:
+2. Start the services:
 ```bash
 docker-compose up -d
 ```
 
-## Service Access Points
-
-| Service | URL | Port | Description |
-|---------|-----|------|-------------|
-| Prometheus | http://localhost:9090 | 9090 | Metrics and alerts |
-| Grafana | http://localhost:3000 | 3000 | Dashboards |
-| Alertmanager | http://localhost:9093 | 9093 | Alert management |
-| Node Exporter | http://localhost:9100 | 9100 | System metrics |
-| Blackbox Exporter | http://localhost:9115 | 9115 | HTTP probes |
-| Nginx Service | http://localhost:8080 | 8080 | Test endpoints |
-
-## Nginx Test Endpoints
-
-The Nginx service includes the following test endpoints:
-- `/` - Main page
-- `/health` - Health check endpoint (returns 200)
-- `/error` - Error endpoint (returns 502)
-
-## Monitoring Features
-
-### System Monitoring
-- CPU usage monitoring
-- Memory usage tracking
-- Disk space monitoring
-- Network metrics collection
-- System load monitoring
-
-### API Monitoring
-- HTTP status code monitoring
-- Response time tracking
-- Service availability checks
-- SSL certificate monitoring
-- Custom endpoint monitoring
-
-### Alert Configuration
-- High CPU usage (>80%)
-- High memory usage (>85%)
-- High disk usage (>85%)
-- HTTP probe failures
-- Non-200 HTTP status codes
-- Service availability alerts
-
-## Alert Channels
-
-### Slack Integration
-- Channel: #alerts
-- Alert format includes:
-  - Alert name and description
-  - Status and severity
-  - Instance details
-  - Timestamp
-  - Color-coded messages
-
-### Telegram Integration
-- Group chat notifications
-- Emoji-enhanced messages
-- Markdown formatting
-- Real-time alerts
-- Resolved notifications
-
-## Grafana Dashboards
-
-Recommended dashboards to import:
-1. Node Exporter Full (ID: 1860)
-   - System metrics visualization
-   - Resource usage trends
-   - Performance indicators
-
-2. Blackbox Exporter (ID: 7587)
-   - HTTP endpoint monitoring
-   - Response time analysis
-   - Availability metrics
-
-## Maintenance
-
-### Starting Services
+3. Verify the services are running:
 ```bash
-docker-compose up -d
+docker-compose ps
 ```
 
-### Stopping Services
-```bash
-docker-compose down
+## Configuration
+
+### Prometheus Configuration
+
+The Prometheus configuration is located in `prometheus/prometheus.yml`. It includes:
+- Global scrape intervals
+- Alertmanager configuration
+- Job configurations for Node Exporter and Blackbox Exporter
+
+### Grafana Configuration
+
+Grafana is configured with:
+- Pre-configured dashboards for Node Exporter and Blackbox Exporter
+- Prometheus as the default datasource
+- Alerting rules
+
+### Alertmanager Configuration
+
+Alertmanager configuration is in `alertmanager/alertmanager.yml`. It includes:
+- Global settings
+- Route configuration
+- Receiver configurations for Slack and Telegram
+
+## Slack Integration
+
+### Creating Slack Webhook
+url guide: https://api.slack.com/messaging/webhooks
+
+1. Go to your Slack workspace
+2. Click on your workspace name → Settings & administration → Manage apps
+3. Search for "Incoming Webhooks" and click "Add to Slack"
+4. Choose a channel for notifications
+5. Copy the Webhook URL
+
+### Configuring Alertmanager for Slack
+
+Add the following to `alertmanager/alertmanager.yml`:
+
+```yaml
+receivers:
+  - name: 'slack'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts'
+        send_resolved: true
+        title: '{{ template "slack.default.title" . }}'
+        text: '{{ template "slack.default.text" . }}'
 ```
 
-### Checking Logs
-```bash
-docker-compose logs -f [service_name]
+## Telegram Integration
+
+### Creating Telegram Bot
+url for telegram bot: https://core.telegram.org/bots/tutorial
+
+1. Open Telegram and search for "@BotFather"
+2. Start a chat and send `/newbot`
+3. Follow the instructions to create your bot
+4. Copy the bot token provided by BotFather
+
+### Getting Chat ID
+
+1. Start a chat with your bot
+2. Send a message to the bot
+3. Visit `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
+4. Look for the "chat" object and note the "id" value
+
+### Configuring Alertmanager for Telegram
+
+Add the following to `alertmanager/alertmanager.yml`:
+
+```yaml
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: 'YOUR_BOT_TOKEN'
+        chat_id: YOUR_CHAT_ID
+        send_resolved: true
+        message: '{{ template "telegram.default.message" . }}'
 ```
 
-### Updating Configuration
-1. Edit configuration files
-2. Restart affected services:
-```bash
-docker-compose restart [service_name]
-```
+## Usage
+
+### Accessing Services
+
+- **Grafana**: http://localhost:3000
+  - Default credentials: admin/admin
+- **Prometheus**: http://localhost:9090
+- **Alertmanager**: http://localhost:9093
+- **Node Exporter**: http://localhost:9100
+- **Blackbox Exporter**: http://localhost:9115
+
+### Viewing Metrics
+
+1. Log in to Grafana
+2. Navigate to Dashboards
+3. Select either:
+   - Node Exporter Dashboard (ID: 11074)
+   - Blackbox Exporter Dashboard (ID: 13659)
+
+### Managing Alerts
+
+1. Access Alertmanager at http://localhost:9093
+2. View active alerts and their status
+3. Configure silence periods if needed
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Prometheus Targets**
-   - Check: http://localhost:9090/targets
-   - Verify all targets are UP
-   - Check scrape configurations
+1. **Services not starting**
+   - Check Docker logs: `docker-compose logs`
+   - Verify port availability
+   - Check configuration files for syntax errors
 
-2. **Alertmanager Status**
-   - Check: http://localhost:9093/#/status
-   - Verify alert routing
-   - Check notification channels
+2. **No data in Grafana**
+   - Verify Prometheus is scraping targets
+   - Check datasource configuration in Grafana
+   - Ensure metrics are being collected
 
-3. **Nginx Endpoints**
-   - Test health endpoint: http://localhost:8080/health
-   - Test error endpoint: http://localhost:8080/error
-   - Verify response codes
+3. **Alerts not working**
+   - Verify Alertmanager configuration
+   - Check webhook URLs and tokens
+   - Test alert rules in Prometheus
 
-4. **Grafana Access**
-   - Default credentials: admin/admin
-   - Check datasource connections
-   - Verify dashboard imports
+### Logs
 
-### Log Inspection
+View logs for specific services:
 ```bash
-# Check specific service logs
-docker-compose logs -f prometheus
-docker-compose logs -f alertmanager
-docker-compose logs -f nginx
-
-# Check all services
-docker-compose logs -f
+docker-compose logs prometheus
+docker-compose logs grafana
+docker-compose logs alertmanager
 ```
 
-## Security Considerations
+### Restarting Services
 
-1. **Access Control**
-   - Change default Grafana credentials
-   - Secure Prometheus endpoints
-   - Protect Alertmanager access
+To restart all services:
+```bash
+docker-compose restart
+```
 
-2. **Network Security**
-   - Use internal Docker network
-   - Limit exposed ports
-   - Implement firewall rules
-
-3. **Alert Configuration**
-   - Secure webhook URLs
-   - Protect bot tokens
-   - Use secure channels
-
-## Support
-
-For issues and support:
-1. Check the troubleshooting section
-2. Review service logs
-3. Verify configuration files
-4. Test individual components 
+To restart a specific service:
+```bash
+docker-compose restart <service-name>
+``` 
