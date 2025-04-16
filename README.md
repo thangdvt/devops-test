@@ -151,6 +151,8 @@ receivers:
 1. Access Alertmanager at http://localhost:9093
 2. View active alerts and their status
 3. Configure silence periods if needed
+![image](https://github.com/user-attachments/assets/bff0c67b-6b87-43f9-bcfc-d76625b45847)
+![image](https://github.com/user-attachments/assets/8f679cbf-ec55-4537-9890-d43d8c1da112)
 
 ## Troubleshooting
 
