@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nginx Test Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nginx Test Service</h1>
+        <div class="status">
+            <p>Service Status: <strong>Running</strong></p>
+            <p>This is a test service for monitoring with Prometheus and Blackbox Exporter.</p>
+        </div>
+        <div>
+            <h2>Available Endpoints:</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li>/ - Main page (this page)</li>
+                <li>/health - Health check endpoint (returns 200)</li>
+                <li>/error - Error endpoint (returns 502)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

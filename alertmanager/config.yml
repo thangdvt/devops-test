@@ -1,0 +1,48 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/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'
+
+route:
+  group_by: ['alertname', 'instance']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'slack-and-telegram'
+
+receivers:
+- name: 'slack-and-telegram'
+  slack_configs:
+  - channel: '#alerts'
+    send_resolved: true
+    title: '{{ template "slack.default.title" . }}'
+    text: |-
+      {{ range .Alerts }}
+        *Alert:* {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Status:* {{ .Status }}
+        *Severity:* {{ .Labels.severity }}
+        *Instance:* {{ .Labels.instance }}
+        *Time:* {{ .StartsAt }}
+      {{ end }}
+    footer: 'Monitoring System'
+    color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+    username: 'AlertManager'
+    icon_emoji: ':warning:'
+  telegram_configs:
+  - bot_token: '7585042305:AAFyUR5hEEbTL00yWA6JfB6xXe6M7vfjK-Q'
+    chat_id: -1002614077075
+    send_resolved: true
+    message: |-
+      {{ range .Alerts }}
+      🔔 *Alert:* {{ .Annotations.summary }}
+      📝 *Description:* {{ .Annotations.description }}
+      ⚠️ *Status:* {{ .Status }}
+      🚨 *Severity:* {{ .Labels.severity }}
+      💻 *Instance:* {{ .Labels.instance }}
+      ⏰ *Time:* {{ .StartsAt }}
+      {{ end }}
+    parse_mode: 'Markdown'
+    disable_notifications: false
+
+templates:
+- '/etc/alertmanager/template/*.tmpl' 

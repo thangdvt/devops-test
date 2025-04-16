@@ -1,0 +1,49 @@
+groups:
+- name: http_errors
+  rules:
+  - alert: HTTPProbeFailed
+    expr: probe_success == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "HTTP probe failed (instance {{ $labels.instance }})"
+      description: "HTTP probe failed for {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: HTTPStatusNot200
+    expr: probe_http_status_code != 200
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "HTTP status is not 200 (instance {{ $labels.instance }})"
+      description: "HTTP status code is {{ $value }} for {{ $labels.instance }}"
+
+- name: system_alerts
+  rules:
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage (instance {{ $labels.instance }})"
+      description: "CPU usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage (instance {{ $labels.instance }})"
+      description: "Memory usage is above 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: HighDiskUsage
+    expr: 100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes) > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High disk usage (instance {{ $labels.instance }})"
+      description: "Disk usage is above 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}" 

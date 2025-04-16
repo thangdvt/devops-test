@@ -1,0 +1,24 @@
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+    dashboardList:
+      - name: 'Node Exporter'
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards/node_exporter.json
+          gnetId: 11074
+          revision: 1
+      - name: 'Blackbox Exporter'
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards/blackbox_exporter.json
+          gnetId: 13659
+          revision: 1 
